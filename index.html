@@ -229,12 +229,45 @@
         <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="sendToSheetCheckbox">
             <label for="sendToSheetCheckbox" style="font-size:1.05em;cursor:pointer;">Send to Google Sheet</label>
+            <a href="#" id="changeSheetUrl" style="font-size:0.98em;color:#007bff;text-decoration:underline;display:none;">Change Google Sheet URL</a>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Helper: get/set Google Sheet URL in localStorage
+            function getSheetUrl() {
+                return localStorage.getItem('googleSheetUrl') || '';
+            }
+            function setSheetUrl(url) {
+                localStorage.setItem('googleSheetUrl', url);
+            }
+            function promptForSheetUrl() {
+                let url = prompt('Enter your Google Sheet POST URL or prefilled form URL (e.g., https://docs.google.com/forms/d/e/FORM_ID/formResponse):', '');
+                if (url && url.trim()) {
+                    setSheetUrl(url.trim());
+                    $('#changeSheetUrl').show();
+                } else {
+                    $('#sendToSheetCheckbox').prop('checked', false);
+                }
+            }
+            // Show change link if URL is already set
+            if (getSheetUrl()) {
+                $('#changeSheetUrl').show();
+            }
+            // When checkbox is checked, prompt for URL if not set
+            $('#sendToSheetCheckbox').on('change', function() {
+                if ($(this).is(':checked') && !getSheetUrl()) {
+                    promptForSheetUrl();
+                }
+            });
+            // Change Google Sheet URL link
+            $('#changeSheetUrl').on('click', function(e) {
+                e.preventDefault();
+                promptForSheetUrl();
+            });
+
             // Add more full field groups
             $('#addMore').click(function() {
                 var group = $('.field-group').first().clone();
@@ -340,6 +373,12 @@
 
                 // Check if send to Google Sheet is checked
                 if ($('#sendToSheetCheckbox').is(':checked')) {
+                    let sheetUrl = getSheetUrl();
+                    if (!sheetUrl) {
+                        promptForSheetUrl();
+                        sheetUrl = getSheetUrl();
+                        if (!sheetUrl) return; // User cancelled
+                    }
                     if (confirm('Do you want to send this summary to Google Sheet?')) {
                         // Send each group to Google Sheet
                         $('.field-group').each(function() {
@@ -349,7 +388,7 @@
                             var additionalText = $(this).find('.additional-text').val();
                             if (username || clientName || websiteUrl || additionalText) {
                                 $.ajax({
-                                    url: "https://docs.google.com/forms/d/e/1FAIpQLScZDvZgHF-XF21572ksmKwStBR9u7qJSsbSEd2GYN_AcZ2e_w/formResponse",
+                                    url: sheetUrl,
                                     data: {
                                         "entry.2041424832": username,
                                         "entry.1050326521": clientName,
