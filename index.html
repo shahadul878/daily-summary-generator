@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Summary Generator</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f5f5;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+        .container {
+            max-width: 650px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            padding: 40px 30px 30px 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .field-group {
+            background: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 24px 24px 16px 24px;
+            margin-bottom: 22px;
+            position: relative;
+            transition: box-shadow 0.2s;
+        }
+        .field-group:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .field-group label {
+            font-weight: 600;
+            margin-top: 10px;
+            display: block;
+            color: #333;
+            font-size: 1.04em;
+        }
+        .field-group input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1em;
+            background: #fff;
+            transition: border 0.2s;
+        }
+        .field-group input[type="text"]:focus {
+            border: 1.5px solid #007bff;
+            outline: none;
+        }
+        .remove-group {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #fff;
+            border: none;
+            color: #dc3545;
+            font-size: 1.3em;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .remove-group:hover {
+            background: #ffeaea;
+            color: #a71d2a;
+        }
+        .add-more-btn {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 18px;
+            font-size: 1.08em;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .add-more-btn:hover {
+            background: #0056b3;
+        }
+        .summary-btn {
+            width: 100%;
+            background: #aaa;
+            color: #fff;
+            border: none;
+            padding: 16px 0;
+            border-radius: 8px;
+            font-size: 1.15em;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .summary-btn.active {
+            background: #28a745;
+        }
+        .summary-section {
+            margin-top: 36px;
+            background: #f4f4f4;
+            border-radius: 12px;
+            padding: 32px 24px 24px 24px;
+            min-height: 80px;
+            font-size: 1.08em;
+            font-weight: 400;
+            color: #222;
+            text-align: left;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .summary-title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+        .summary-header {
+            font-weight: 700;
+            font-size: 1.13em;
+            margin-bottom: 2px;
+        }
+        .summary-date {
+            font-weight: 700;
+            font-size: 1.13em;
+        }
+        .summary-separator {
+            border: none;
+            border-top: 2px dashed #222;
+            margin: 10px 0 16px 0;
+        }
+        .summary-list {
+            margin-bottom: 22px;
+        }
+        .summary-line {
+            margin-bottom: 6px;
+            font-size: 1.08em;
+        }
+        .summary-btns {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+        }
+        .copy-btn {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 1.08em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        .clear-btn {
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 1.08em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .clear-btn:hover {
+            background: #b52a37;
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px 4vw 18px 4vw;
+            }
+            .summary-section {
+                padding: 18px 4vw;
+            }
+            .field-group {
+                padding: 16px 8px 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Summary Generator</h1>
+        <form id="summaryForm" autocomplete="off">
+            <div class="field-group">
+                <label>Username:</label>
+                <input type="text" class="username" placeholder="e.g. sujondev">
+
+                <label>Client Name:</label>
+                <input type="text" class="clientName" placeholder="e.g. Sujon M.">
+
+                <label>Website URL:</label>
+                <input type="text" class="websiteUrl" placeholder="e.g. http://example.com">
+
+                <label>Additional Text:</label>
+                <input type="text" class="additional-text" placeholder="e.g. Homepage">
+                <button type="button" class="remove-group" style="display:none;" title="Remove this group">&times;</button>
+            </div>
+            <button type="button" class="add-more-btn" id="addMore"><span style="font-size:1.3em;">&#43;</span> Add More</button>
+            <button type="button" class="summary-btn" id="addToSummary">Add to Summary</button>
+        </form>
+        <div class="summary-section" id="summarySection">
+            <div class="summary-title">Summary</div>
+        </div>
+        <div style="margin-top: 16px; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="sendToSheetCheckbox">
+            <label for="sendToSheetCheckbox" style="font-size:1.05em;cursor:pointer;">Send to Google Sheet</label>
+            <a href="#" id="changeSheetUrl" style="font-size:0.98em;color:#007bff;text-decoration:underline;display:none;">Change Google Sheet URL</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Helper: get/set Google Sheet URL in localStorage
+            function getSheetUrl() {
+                return localStorage.getItem('googleSheetUrl') || '';
+            }
+            function setSheetUrl(url) {
+                localStorage.setItem('googleSheetUrl', url);
+            }
+            function promptForSheetUrl() {
+                let url = prompt('Enter your Google Sheet POST URL or prefilled form URL (e.g., https://docs.google.com/forms/d/e/FORM_ID/formResponse):', '');
+                if (url && url.trim()) {
+                    setSheetUrl(url.trim());
+                    $('#changeSheetUrl').show();
+                } else {
+                    $('#sendToSheetCheckbox').prop('checked', false);
+                }
+            }
+            // Show change link if URL is already set
+            if (getSheetUrl()) {
+                $('#changeSheetUrl').show();
+            }
+            // When checkbox is checked, prompt for URL if not set
+            $('#sendToSheetCheckbox').on('change', function() {
+                if ($(this).is(':checked') && !getSheetUrl()) {
+                    promptForSheetUrl();
+                }
+            });
+            // Change Google Sheet URL link
+            $('#changeSheetUrl').on('click', function(e) {
+                e.preventDefault();
+                promptForSheetUrl();
+            });
+
+            // Add more full field groups
+            $('#addMore').click(function() {
+                var group = $('.field-group').first().clone();
+                group.find('input').val('');
+                group.find('.remove-group').show();
+                $('#summaryForm .field-group:last').after(group);
+            });
+
+            // Remove a field group
+            $('#summaryForm').on('click', '.remove-group', function() {
+                $(this).closest('.field-group').remove();
+            });
+
+            // Enable Add to Summary button if any field is filled in any group
+            $('#summaryForm').on('input', 'input', function() {
+                let filled = false;
+                $('.field-group').each(function() {
+                    if (
+                        $(this).find('.username').val() ||
+                        $(this).find('.clientName').val() ||
+                        $(this).find('.websiteUrl').val() ||
+                        $(this).find('.additional-text').val()
+                    ) {
+                        filled = true;
+                    }
+                });
+                if (filled) {
+                    $('#addToSummary').addClass('active');
+                } else {
+                    $('#addToSummary').removeClass('active');
+                }
+            });
+
+            // Add to Summary: collect all groups
+            $('#addToSummary').click(function() {
+                if (!$(this).hasClass('active')) return;
+                // Get today's date in format: 22 July 2025
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                let today = new Date();
+                let dateStr = today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
+
+                // Build summary lines
+                let lines = [];
+                $('.field-group').each(function(idx) {
+                    let clientName = $(this).find('.clientName').val().trim();
+                    let websiteUrl = $(this).find('.websiteUrl').val().trim();
+                    let additional = $(this).find('.additional-text').val().trim();
+                    if (clientName || websiteUrl || additional) {
+                        let line = '';
+                        if (clientName) line += clientName;
+                        if (websiteUrl) line += (line ? ' - ' : '') + websiteUrl;
+                        if (additional) line += ' ( ' + additional + ' )';
+                        lines.push(line);
+                    }
+                });
+
+                let summaryText = '';
+                summaryText += '<div class="summary-title">Summary</div>';
+                summaryText += '<div class="summary-header">Dev &rarr; Daily Summary <span class="summary-date">' + dateStr + '</span></div>';
+                summaryText += '<hr class="summary-separator">';
+                summaryText += '<div class="summary-list">';
+                if (lines.length === 0) {
+                    summaryText += '<span style="color:#888;">No entries.</span>';
+                } else {
+                    lines.forEach(function(line) {
+                        summaryText += '<div class="summary-line">' + line + '</div>';
+                    });
+                }
+                summaryText += '</div>';
+                summaryText += '<div class="summary-btns">';
+                summaryText += '<button type="button" class="copy-btn">Copy Summary</button>';
+                summaryText += '<button type="button" class="clear-btn">Clear Summary</button>';
+                summaryText += '</div>';
+                $('#summarySection').html(summaryText);
+            });
+
+            // Copy Summary functionality
+            $('#summarySection').on('click', '.copy-btn', function() {
+                // Get plain text version for copying
+                let today = new Date();
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                let dateStr = today.getDate() + ' ' + months[today.getMonth()] + ' ' + today.getFullYear();
+                let text = 'Dev → Daily Summary ' + dateStr + '\n';
+                text += '-------------------------------\n';
+                let lines = [];
+                $('.field-group').each(function(idx) {
+                    let clientName = $(this).find('.clientName').val().trim();
+                    let websiteUrl = $(this).find('.websiteUrl').val().trim();
+                    let additional = $(this).find('.additional-text').val().trim();
+                    if (clientName || websiteUrl || additional) {
+                        let line = '';
+                        if (clientName) line += clientName;
+                        if (websiteUrl) line += (line ? ' - ' : '') + websiteUrl;
+                        if (additional) line += ' ( ' + additional + ' )';
+                        lines.push(line);
+                    }
+                });
+                if (lines.length === 0) {
+                    text += 'No entries.';
+                } else {
+                    text += lines.join('\n');
+                }
+
+                // Check if send to Google Sheet is checked
+                if ($('#sendToSheetCheckbox').is(':checked')) {
+                    let sheetUrl = getSheetUrl();
+                    if (!sheetUrl) {
+                        promptForSheetUrl();
+                        sheetUrl = getSheetUrl();
+                        if (!sheetUrl) return; // User cancelled
+                    }
+                    if (confirm('Do you want to send this summary to Google Sheet?')) {
+                        // Send each group to Google Sheet
+                        $('.field-group').each(function() {
+                            var username = $(this).find('.username').val();
+                            var clientName = $(this).find('.clientName').val();
+                            var websiteUrl = $(this).find('.websiteUrl').val();
+                            var additionalText = $(this).find('.additional-text').val();
+                            if (username || clientName || websiteUrl || additionalText) {
+                                $.ajax({
+                                    url: sheetUrl,
+                                    data: {
+                                        "entry.2041424832": username,
+                                        "entry.1050326521": clientName,
+                                        "entry.2046462741": websiteUrl,
+                                        "entry.1581039888": additionalText
+                                    },
+                                    type: "POST",
+                                    dataType: "xml"
+                                });
+                            }
+                        });
+                        alert('Summary sent to Google Sheet!');
+                    }
+                }
+
+                // Copy to clipboard
+                navigator.clipboard.writeText(text).then(function() {
+                    $('.copy-btn').text('Copied!');
+                    setTimeout(function() { $('.copy-btn').text('Copy Summary'); }, 1200);
+                });
+            });
+
+            // Clear Summary functionality
+            $('#summarySection').on('click', '.clear-btn', function() {
+                $('#summarySection').html('<div class="summary-title">Summary</div>');
+                // Clear all input fields
+                $('.field-group:gt(0)').remove(); // Remove all but the first group
+                var firstGroup = $('.field-group').first();
+                firstGroup.find('input').val('');
+                firstGroup.find('.remove-group').hide();
+                // Uncheck the Google Sheet checkbox
+                $('#sendToSheetCheckbox').prop('checked', false);
+            });
+
+            // Show remove button for all but the first group
+            $('.field-group:gt(0) .remove-group').show();
+        });
+    </script>
+</body>
+</html> 
